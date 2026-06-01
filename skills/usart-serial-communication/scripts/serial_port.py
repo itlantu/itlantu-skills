@@ -424,6 +424,22 @@ class SerialPort:
         self._ensure_open()
         return self._serial.readline()  # type: ignore[union-attr]
 
+    def read_available(self) -> bytes:
+        """读取缓冲区中当前所有可用的字节（非阻塞）。
+
+        先通过 :attr:`in_waiting` 查询可读字节数，再一次性读取，
+        避免因等待换行符导致的阻塞问题，兼容无换行符的数据流。
+
+        Returns:
+            缓冲区中全部可读字节，无数据时返回空字节串。
+        """
+        self._ensure_open()
+        waiting: int = self._serial.in_waiting  # type: ignore[union-attr]
+        if waiting == 0:
+            # 无可用数据，尝试读取 1 字节触发超时等待
+            return self._serial.read(1)  # type: ignore[union-attr]
+        return self._serial.read(waiting)  # type: ignore[union-attr]
+
     def read_bytes(self, size: int = 1) -> bytes:
         """读取指定字节数。
 
@@ -495,6 +511,12 @@ class SerialPort:
     def is_open(self) -> bool:
         """返回串口当前是否处于打开状态。"""
         return self._serial is not None and self._serial.is_open
+
+    @property
+    def in_waiting(self) -> int:
+        """返回接收缓冲区中等待读取的字节数。"""
+        self._ensure_open()
+        return self._serial.in_waiting  # type: ignore[union-attr]
 
     @property
     def config(self) -> SerialConfig:

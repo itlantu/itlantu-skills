@@ -15,6 +15,7 @@
 
 from __future__ import annotations
 
+import sys as _sys
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -212,7 +213,9 @@ def _map_flow_control(raw: str) -> bool:
 class PortScanner:
     """系统串口扫描器 —— 枚举可用端口并检测连通性。
 
-    提供静态方法，无需实例化即可调用。适用于设备发现、调试前检查等场景。
+    基于 pyserial 的 :func:`serial.tools.list_ports.comports` 枚举串口（通过 SetupAPI），
+    在 Windows 上若 SetupAPI 无结果则回退至注册表
+    ``HKLM\\HARDWARE\\DEVICEMAP\\SERIALCOMM`` 扫描，以兼容 com0com 等虚拟串口驱动。
 
     Examples:
         >>> PortScanner.list()
@@ -223,14 +226,13 @@ class PortScanner:
     def list(*, verbose: bool = False) -> list[str]:
         """扫描并打印当前系统中所有可用的串口设备。
 
-        通过 pyserial 的 :func:`serial.tools.list_ports.comports` 枚举串口，
-        在无串口时打印提示信息。
+        优先使用 pyserial 枚举，Windows 上无结果时回退注册表扫描。
 
         Args:
             verbose: 为 ``True`` 时额外输出 VID/PID、厂商名、硬件 ID 等信息。
 
         Returns:
-            发现的串口设备名列表（如 ``["COM3", "COM5"]``）。
+            发现的串口设备名列表（如 ``["COM1", "COM2"]``）。
 
         Raises:
             RuntimeError: 未安装 pyserial 库时抛出。
@@ -241,6 +243,10 @@ class PortScanner:
             raise RuntimeError(
                 "未安装 pyserial 库，请执行: pip install pyserial"
             ) from None
+
+        # Windows 上 SetupAPI 可能漏掉虚拟串口（如 com0com），回退注册表
+        if not ports and _sys.platform == "win32":
+            ports = PortScanner._win_registry_ports()
 
         if not ports:
             print("未发现任何串口设备。")
@@ -254,7 +260,7 @@ class PortScanner:
             if verbose:
                 print(f"    描述   : {p.description or 'N/A'}")
                 print(f"    厂商   : {p.manufacturer or 'N/A'}")
-                if p.vid is not None:
+                if getattr(p, "vid", None) is not None:
                     print(f"    VID:PID: {p.vid:04X}:{p.pid:04X}")
                 print(f"    HWID   : {p.hwid or 'N/A'}")
                 print()
@@ -298,12 +304,57 @@ class PortScanner:
 
     @staticmethod
     def _exists(port: str) -> bool:
-        """判断 *port* 是否存在于系统串口列表中。"""
+        """判断 *port* 是否存在于系统中。
+
+        Windows 上依次检查 pyserial 枚举结果与注册表。
+        """
         try:
-            available = [p.device for p in serial.tools.list_ports.comports()]
+            if any(p.device == port for p in serial.tools.list_ports.comports()):
+                return True
         except ImportError:
-            return False
-        return port in available
+            pass
+
+        if _sys.platform == "win32":
+            reg_ports = PortScanner._win_registry_ports()
+            if any(p.device == port for p in reg_ports):
+                return True
+
+        return False
+
+    @staticmethod
+    def _win_registry_ports() -> list:
+        """从 Windows 注册表读取串口列表（回退方案）。
+
+        读取 ``HKLM\\HARDWARE\\DEVICEMAP\\SERIALCOMM`` 键下的所有值，
+        返回与 :func:`comports` 兼容的 ``ListPortInfo`` 对象列表。
+
+        Returns:
+            注册表中记录的串口设备列表，无权限时返回空列表。
+        """
+        import winreg
+
+        try:
+            key = winreg.OpenKey(
+                winreg.HKEY_LOCAL_MACHINE,
+                r"HARDWARE\DEVICEMAP\SERIALCOMM",
+            )
+        except OSError:
+            return []
+
+        results = []
+        index = 0
+        while True:
+            try:
+                name, value, _ = winreg.EnumValue(key, index)
+                info = serial.tools.list_ports_common.ListPortInfo(value)
+                info.description = name
+                info.hwid = name
+                results.append(info)
+                index += 1
+            except OSError:
+                break
+        winreg.CloseKey(key)
+        return results
 
 
 class SerialPort:
@@ -385,7 +436,7 @@ class SerialPort:
         self._ensure_open()
         return self._serial.read(size)  # type: ignore[union-attr]
 
-    def write(self, data: str, *, fmt: str = "text", append_newline: bool = True) -> int:
+    def write(self, data: str, *, fmt: str = "text", append_newline: bool = True):
         """向串口发送数据。
 
         Args:

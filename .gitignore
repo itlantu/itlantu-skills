@@ -2,3 +2,6 @@
 .vs/
 .vscode/
 .idea/
+
+# python cache
+*__pycache__/

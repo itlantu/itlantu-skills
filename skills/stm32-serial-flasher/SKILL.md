@@ -1,6 +1,6 @@
 ---
 name: stm32-serial-flasher
-description: "使用STM_32CubeProgrammer_CLI通过UART串口(系统Bootloader)烧录固件,适用于arm-none-eabi-gcc生成的ELF或Bin文件"
+description: "使用STM32_Programmer_CLI通过UART串口(系统Bootloader)烧录固件,适用于arm-none-eabi-gcc生成的ELF或Bin文件"
 ---
 
 # STM32串口烧录(UART ISP)

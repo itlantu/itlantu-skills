@@ -1,12 +1,12 @@
 ---
 name: stm32-serial-flasher
-description: "使用STM32CubeProgrammer CLI通过UART 串口(系统 Bootloader)烧录固件，适用于 arm-none-eabi-gcc生成的ELF或Bin文件"
+description: "使用STM32CubeProgrammer CLI通过UART 串口(系统 Bootloader)烧录固件,适用于 arm-none-eabi-gcc生成的ELF或Bin文件"
 ---
 
 # STM32串口烧录(UART ISP)
 
 ## 工具简介
-`STM32_Programmer_CLI`是ST官方提供的命令行烧录工具，支持通过**UART 串口**连接 STM32 芯片内嵌的 Bootloader，完成固件下载与校验。
+`STM32_Programmer_CLI`是ST官方提供的命令行烧录工具,支持通过**UART 串口**连接 STM32 芯片内嵌的 Bootloader,完成固件下载与校验。
 
 
 ## 支持的固件格式
@@ -44,10 +44,16 @@ STM32_Programmer_CLI -c port=/dev/ttyUSB1 br=921600 -w firmware.elf -v -s
 
 ## 操作步骤
 1. `确认工具可用`：若命令行无法直接调用`STM32_Programmer_CLI`,请询问用户安装路径(Windows下典型路径：C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeProgrammer\bin)
-2. `确认串口号`：向用户询问串口名,确保串口名符合规范,并提醒用户检查硬件连接与 BOOT0电平
+2. `确认串口号`：向用户询问串口号, 调用脚本获取当前平台的串口号,确保串口号符合规范,并提醒用户检查硬件连接与BOOT0电平
 3. `确认波特率`: 询问用户烧录串口的波特率, 默认为`115200`
 4. `确认固件文件`: 在不确定烧录文件的时候询问用户需要烧录的文件路径, 并且保证为`.elf`和`.bin`格式
 5. `烧录执行`: 构建烧录命令并执行,显示烧录进度和结果, 等待烧录完成,观察输出是否成功。烧录后需将 BOOT0 恢复低电平并复位(-s 参数会自动复位,若硬件支持)
+
+
+## 执行流程
+1. 正式烧录前先`握手`: 仅指定-c连接参数（如`STM32_Programmer_CLI -c port=COM3 br=115200`）,不加 -w、-e、-s等操作参数,握手成功即退出,输出芯片型号和容量后返回 0；超时则返回错误
+2. 握手成功后再进行正式烧录
+3. 烧录成功则返回当前芯片型号和容量,并显示烧录结果；烧录失败则输出错误信息
 
 
 ## 常见问题

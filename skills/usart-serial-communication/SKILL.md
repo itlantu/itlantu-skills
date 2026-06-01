@@ -1,15 +1,29 @@
 ---
 name: usart-serial-communication
 description: >-
-  提供完整的USART/串口通讯能力，支持扫描串口、参数配置、数据收发、格式转换与端口诊断。
+  提供完整的USART/串口通讯能力，包括扫描串口、参数配置、数据收发、格式转换与端口诊断。
   当用户需要与嵌入式设备、单片机、传感器等通过串口通讯，或提及串口、COM口、TTL、
-  RS232、RS485、USART、UART 时自动触发。
+  RS232、RS485、USART、UART 时应主动使用此技能。即使用户未明确提到"串口"，
+  只要涉及硬件调试、固件通讯、传感器数据采集等场景也应触发。
 ---
 
 # USART 串口通讯
 
 通过 `scripts/usart_serial_cli.py` 命令行工具完成所有串口操作。
-Python API 开发参考见 `scripts/code.md`。
+
+## 目录结构
+
+```
+usart-serial-communication/
+├── SKILL.md                  # 技能说明（本文件）
+├── scripts/
+│   ├── usart_serial_cli.py  # 命令行入口 —— SerialCLI
+│   └── serial_port.py       # 核心库 —— SerialConfig / PortScanner / SerialPort
+└── references/
+    └── code.md              # Python API 二次开发参考
+```
+
+如需在代码中直接调用 Python API，阅读 `references/code.md`。
 
 ## 依赖安装
 

@@ -22,6 +22,11 @@ from typing import Optional
 import serial
 import serial.tools.list_ports
 
+try:
+    from serial.tools import list_ports_common
+except ImportError:
+    list_ports_common = None  # type: ignore[assignment]
+
 _DEFAULT_DATA_BITS: int = 8
 _DEFAULT_STOP_BITS: float = 1.0
 _DEFAULT_PARITY: str = "N"
@@ -346,7 +351,7 @@ class PortScanner:
         while True:
             try:
                 name, value, _ = winreg.EnumValue(key, index)
-                info = serial.tools.list_ports_common.ListPortInfo(value)
+                info = list_ports_common.ListPortInfo(value)  # type: ignore[misc]
                 info.description = name
                 info.hwid = name
                 results.append(info)

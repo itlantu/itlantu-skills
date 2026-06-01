@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+import time
 from typing import Optional, Sequence
 from pathlib import Path
 
@@ -119,19 +120,21 @@ class SerialCLI:
                  parity: str = _DEFAULT_PARITY,
                  flow_control: str = _DEFAULT_FLOW_CTRL,
                  fmt: str = "text",
-                 raw: bool = False) -> int:
-        """执行 ``read`` 子命令 —— 持续读取串口数据直到 Ctrl+C 中断。
+                 raw: bool = False,
+                 duration: float = 0.0) -> int:
+        """执行 ``read`` 子命令 —— 读取串口数据。
 
         Args:
             port: 串口设备名。
             baudrate: 波特率。
-            timeout: 读取超时秒数。
+            timeout: 单次读取超时秒数（控制 readline / read_available 等待时长）。
             data_bits: 数据位字符串。
             stop_bits: 停止位字符串。
             parity: 校验位字符串。
             flow_control: 流控字符串。
             fmt: 输出格式，``"text"`` 或 ``"hex"``。
             raw: 为 ``True`` 时直接输出原始字节到 stdout（适合管道）。
+            duration: 读取总时长（秒），0 表示持续读取直到 Ctrl+C 中断。
 
         Returns:
             0 正常退出，1 串口打开失败，2 用户 Ctrl+C 中断。
@@ -153,9 +156,13 @@ class SerialCLI:
         try:
             with SerialPort(config) as sp:
                 if not raw:
-                    print(f"正在监听 {config.summary} …  (Ctrl+C 停止)")
+                    print(f"正在监听 {config.summary}")
+                    if duration:
+                        print(f"持续时间: {duration} 秒")
+                    else:
+                        print("Ctrl+C 停止")
                     print("-" * 50)
-                return SerialCLI._read_loop(sp, fmt=fmt, raw=raw)
+                return SerialCLI._read_loop(sp, fmt=fmt, raw=raw, duration=duration)
         except serial_exception() as exc:
             print(f"[错误] 无法打开 '{port}': {exc}", file=sys.stderr)
             return 1
@@ -216,29 +223,39 @@ class SerialCLI:
             return 1
 
     @staticmethod
-    def _read_loop(sp: SerialPort, *, fmt: str, raw: bool) -> int:
-        """读取循环 —— 逐行读取串口数据并格式化输出。
+    def _read_loop(sp: SerialPort, *, fmt: str, raw: bool,
+                   duration: float = 0.0) -> int:
+        """串口数据读取循环。
+
+        使用 :meth:`SerialPort.read_available` 读取缓冲区中所有可用字节，
+        不依赖换行符，兼容任意格式的数据流。
 
         Args:
             sp: 已打开的 :class:`SerialPort` 实例。
             fmt: 输出格式。
             raw: 是否原始输出。
+            duration: 总持续时间（秒），0 表示无限循环。
 
         Returns:
-            2 表示 Ctrl+C 中断，0 表示其他退出。
+            2 表示 Ctrl+C 中断，0 表示超时结束或其他退出。
         """
+        start = time.monotonic()
         try:
             while True:
-                line = sp.read_line()
-                if not line:
-                    continue
-                if raw:
-                    sys.stdout.buffer.write(line)
-                    sys.stdout.buffer.flush()
-                elif fmt == "hex":
-                    print(line.hex(" ").upper())
-                else:
-                    print(line.decode("utf-8", errors="replace").rstrip())
+                data = sp.read_available()
+                if data:
+                    if raw:
+                        sys.stdout.buffer.write(data)
+                        sys.stdout.buffer.flush()
+                    elif fmt == "hex":
+                        print(data.hex(" ").upper())
+                    else:
+                        print(data.decode("utf-8", errors="replace"), end="")
+                        sys.stdout.flush()
+                elif duration and time.monotonic() - start >= duration:
+                    if not raw:
+                        print("\n[停止] 读取时间到。")
+                    return 0
         except KeyboardInterrupt:
             if not raw:
                 print("\n[停止] 用户中断。")
@@ -279,6 +296,7 @@ class SerialCLI:
                 flow_control=args.flow_control,
                 fmt=args.format,
                 raw=getattr(args, "raw", False),
+                duration=getattr(args, "duration", 0.0),
             )
 
         if cmd == "write":
@@ -335,6 +353,8 @@ class SerialCLI:
                         help="输出格式: text（UTF-8）或 hex（大写十六进制）。默认: text。")
         rp.add_argument("--raw", action="store_true",
                         help="直接输出原始字节到 stdout（适合管道/重定向）。")
+        rp.add_argument("-T", "--duration", type=float, default=0.0,
+                        help="读取持续时间（秒），0 表示持续读取直到 Ctrl+C。默认: 0。")
 
         # ---- write ----
         wp = sub.add_parser("write", help="向串口发送数据。")

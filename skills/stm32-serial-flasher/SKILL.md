@@ -1,6 +1,6 @@
 ---
 name: stm32-serial-flasher
-description: "使用STM32CubeProgrammer CLI通过UART 串口(系统 Bootloader)烧录固件,适用于 arm-none-eabi-gcc生成的ELF或Bin文件"
+description: "使用STM_32CubeProgrammer_CLI通过UART串口(系统Bootloader)烧录固件,适用于arm-none-eabi-gcc生成的ELF或Bin文件"
 ---
 
 # STM32串口烧录(UART ISP)
@@ -43,7 +43,7 @@ STM32_Programmer_CLI -c port=/dev/ttyUSB1 br=921600 -w firmware.elf -v -s
 
 
 ## 操作步骤
-1. `确认工具可用`：若命令行无法直接调用`STM32_Programmer_CLI`,请询问用户安装路径(Windows下典型路径：C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeProgrammer\bin)
+1. `确认工具可用`：若命令行无法直接调用`STM32_Programmer_CLI`,请询问用户安装路径(Windows下典型路径：`C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeProgrammer\bin`)
 2. `确认串口号`：向用户询问串口号, 调用脚本获取当前平台的串口号,确保串口号符合规范,并提醒用户检查硬件连接与BOOT0电平
 3. `确认波特率`: 询问用户烧录串口的波特率, 默认为`115200`
 4. `确认固件文件`: 在不确定烧录文件的时候询问用户需要烧录的文件路径, 并且保证为`.elf`和`.bin`格式

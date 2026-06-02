@@ -106,6 +106,13 @@ python scripts/usart_serial_cli.py write COM3 -d "data" -n
 2. **`check`** — 验证串口可正常打开
 3. **`read` / `write`** — 执行实际通讯
 
+
+## 执行流程
+1. 确定串口号与连接方式, 对应通讯的波特率、数据位、停止位、校验位等参数, 用户不输入则使用默认值, 对于`read`操作, 默认持续读取15秒并提醒用户延迟时间
+2. 使用`check`验证串口是否可正常打开
+3. 执行对应的命令，并返回运行结果
+
+
 ## 注意事项
 
 - Windows 串口格式 `COMx`，Linux 为 `/dev/ttyUSBx` 或 `/dev/ttySx`

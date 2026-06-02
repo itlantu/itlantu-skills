@@ -5,3 +5,7 @@
 
 # python cache
 *__pycache__/
+
+# project agent
+.agents/
+skills-lock.json

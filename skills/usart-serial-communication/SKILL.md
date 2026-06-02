@@ -118,3 +118,5 @@ python scripts/usart_serial_cli.py write COM3 -d "data" -n
 - Windows 串口格式 `COMx`，Linux 为 `/dev/ttyUSBx` 或 `/dev/ttySx`
 - 错误信息输出到 stderr，成功信息输出到 stdout
 - 十六进制数据可带空格，脚本自动去除
+- `read`命令在串口无数据时会持续循环等待（每次超时1秒），调用前请确认目标串口有数据可读，或通过`-T`设置合理的超时秒数避免无限等待
+- `list`和`check`基于pyserial的`comports()`枚举，**不包含虚拟串口（PTY设备如`/dev/pts/*`）**，但`read`/`write`可直接通过路径打开使用

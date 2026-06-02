@@ -108,7 +108,7 @@ python scripts/usart_serial_cli.py write COM3 -d "data" -n
 
 
 ## 执行流程
-1. 确定串口号与连接方式, 对应通讯的波特率、数据位、停止位、校验位等参数, 用户不输入则使用默认值, 对于`read`操作, 默认持续读取15秒并提醒用户延迟时间
+1. 确定串口号与连接方式, 对应通讯的波特率、数据位、停止位、校验位等参数, 用户不输入则使用默认值, 对于`read`操作用户不指定`-T`则持续读取直到中断（Ctrl+C）, 建议通过`-T`指定具体超时秒数（如`-T 15`）避免 agent 调用时无限阻塞
 2. 使用`check`验证串口是否可正常打开
 3. 执行对应的命令，并返回运行结果
 
@@ -118,3 +118,5 @@ python scripts/usart_serial_cli.py write COM3 -d "data" -n
 - Windows 串口格式 `COMx`，Linux 为 `/dev/ttyUSBx` 或 `/dev/ttySx`
 - 错误信息输出到 stderr，成功信息输出到 stdout
 - 十六进制数据可带空格，脚本自动去除
+- `read`命令在串口无数据时会持续循环等待（每次超时1秒），调用前请确认目标串口有数据可读，或通过`-T`设置合理的超时秒数避免无限等待
+- `list`和`check`基于pyserial的`comports()`枚举，**不包含虚拟串口（PTY设备如`/dev/pts/*`）**，但`read`/`write`可直接通过路径打开使用

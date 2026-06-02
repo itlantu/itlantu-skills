@@ -59,24 +59,33 @@ echo "所有环境变量已配置"
 
 ### 调用模板
 
+输入支持两种方式：
+- **URL**：直接传入图片 URL，无需下载
+- **本地文件**：读取文件后 base64 编码传入
+
 ```
 python -c "
 import os, sys, base64
 from openai import OpenAI
 
-image_path = '<图片路径>'
-with open(image_path, 'rb') as f:
-    image_b64 = base64.b64encode(f.read()).decode('utf-8')
-ext = image_path.rsplit('.', 1)[-1].lower()
-if ext in ('jpg', 'jpeg'):
-    mime = 'image/jpeg'
-elif ext == 'png':
-    mime = 'image/png'
-elif ext in ('webp', 'bmp', 'gif'):
-    mime = f'image/{ext}'
+image_input = '<图片路径或URL>'
+
+if image_input.startswith('http://') or image_input.startswith('https://'):
+    image_url = image_input
 else:
-    print(f'不支持的图片格式: {ext}')
-    sys.exit(1)
+    with open(image_input, 'rb') as f:
+        image_b64 = base64.b64encode(f.read()).decode('utf-8')
+    ext = image_input.rsplit('.', 1)[-1].lower()
+    if ext in ('jpg', 'jpeg'):
+        mime = 'image/jpeg'
+    elif ext == 'png':
+        mime = 'image/png'
+    elif ext in ('webp', 'bmp', 'gif'):
+        mime = f'image/{ext}'
+    else:
+        print(f'不支持的图片格式: {ext}')
+        sys.exit(1)
+    image_url = f'data:{mime};base64,{image_b64}'
 
 client = OpenAI(
     api_key=os.environ['ITLANTU-IMAGE-API-KEY'],
@@ -88,7 +97,7 @@ response = client.chat.completions.create(
     messages=[{
         'role': 'user',
         'content': [
-            {'type': 'image_url', 'image_url': {'url': f'data:{mime};base64,{image_b64}'}},
+            {'type': 'image_url', 'image_url': {'url': image_url}},
             {'type': 'text', 'text': '<提示词>'}
         ]
     }]
@@ -109,8 +118,8 @@ print(response.choices[0].message.content)
 
 ## 执行步骤
 
-1. 确认用户提供了图片（文件路径或已粘贴的图片），如未提供则提示用户提供
+1. 确认用户提供了图片（本地文件路径、URL 或已粘贴的图片），如未提供则提示用户提供
 2. 检查 `ITLANTU-IMAGE-API-KEY`、`ITLANTU-IMAGE-BASE-URL`、`ITLANTU-IMAGE-MODEL` 三个环境变量是否已设置，未设置则提示用户配置
 3. 根据用户需求设计提示词，明确告知模型需要分析的内容（如：描述图片、识别物体、提取文字、判断场景等）
-4. 使用上述 Python 调用模板执行分析，将 `<图片路径>` 替换为实际路径，`<提示词>` 替换为实际提示词
+4. 使用上述 Python 调用模板执行分析，将 `<图片路径或URL>` 替换为实际路径或 URL，`<提示词>` 替换为实际提示词
 5. 将模型返回的分析结果按输出格式展示给用户

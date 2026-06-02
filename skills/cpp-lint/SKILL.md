@@ -1,6 +1,6 @@
 ---
 name: cpp-lint
-description: "使用clang-format对C++/C代码进行规范检查(仅检查，严格禁止修改文件). 当用户需要检查代码风格、格式化检查、clang-format相关操作时调用。适用于包含.cpp/.h/.hpp/.cc/.cxx文件的C/C++项目. 对于CMakeLists项目支持从根目录递归扫描所有源文件."
+description: "使用clang-format对C++/C代码进行规范检查(仅检查，严禁修改文件)。当用户提到lint、代码规范、代码风格、clang-format、格式检查、静态检查、coding style、格式审查、代码扫描时主动调用。适用于任何包含.cpp/.h/.hpp/.cc/.cxx文件的C/C++项目。对于CMakeLists项目支持从根目录递归扫描所有源文件。即使用户未明确说'用clang-format'，只要涉及C++代码格式/规范检查即应使用此技能。"
 ---
 
 # C++ 代码规范检查
@@ -44,9 +44,9 @@ description: "使用clang-format对C++/C代码进行规范检查(仅检查，严
 | LLVM | `references/llvm.clang-format` | LLVM 项目标准风格 |
 | GNU | `references/gnu.clang-format` | GNU 项目标准风格 |
 
-使用方式：
+使用方式（路径为技能目录下的相对路径，运行时替换为绝对路径）：
 ```bash
-clang-format --style=file:skills/cpp-lint/references/google.clang-format -n <files>
+clang-format --style=file:<项目根目录>/skills/cpp-lint/references/google.clang-format -n <files>
 ```
 
 ## 检查流程
@@ -72,7 +72,7 @@ clang-format --style=file:skills/cpp-lint/references/google.clang-format -n <fil
 如果项目根目录存在 `CMakeLists.txt`，以根目录为起点，递归扫描以下扩展名的文件：
 - `.cpp` `.cc` `.cxx` `.c++` `.C`
 - `.h` `.hpp` `.hh` `.hxx` `.h++`
-- `.c` `.m` `.mm`(可选)
+- `.c` `.m` `.mm` (可选)
 
 PowerShell 扫描命令：
 ```powershell
@@ -81,7 +81,11 @@ Get-ChildItem -Path . -Recurse -Include *.cpp,*.h,*.hpp,*.cc,*.cxx,*.hh,*.c | Fo
 
 Linux 扫描命令：
 ```bash
-find . -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.hpp" -o -name "*.cc" -o -name "*.cxx" -o -name "*.hh" -o -name "*.c" \) -print0 | xargs -0 clang-format -n
+find . -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.hpp" -o -name "*.cc" -o -name "*.cxx" -o -name "*.hh" -o -name "*.c" \) \
+  ! -path "./build/*" ! -path "./cmake-build-*/*" \
+  ! -path "./third_party/*" ! -path "./vendor/*" \
+  ! -path "./node_modules/*" ! -path "./.git/*" \
+  -print0 | xargs -0 clang-format -n
 ```
 
 **排除目录**：自动跳过 `build/`、`cmake-build-*/`、`third_party/`、`vendor/`、`node_modules/`、`.git/` 等非项目源码目录。
@@ -110,9 +114,9 @@ Write-Host "Total files with issues: $errCount"
 **Linux (bash)**：
 ```bash
 find . -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.hpp" -o -name "*.cc" -o -name "*.cxx" -o -name "*.hh" \) \
-  -not -path "./build/*" -not -path "./cmake-build-*/*" \
-  -not -path "./third_party/*" -not -path "./vendor/*" \
-  -not -path "./node_modules/*" -not -path "./.git/*" \
+  ! -path "./build/*" ! -path "./cmake-build-*/*" \
+  ! -path "./third_party/*" ! -path "./vendor/*" \
+  ! -path "./node_modules/*" ! -path "./.git/*" \
   -print0 | xargs -0 clang-format -n
 ```
 
@@ -177,7 +181,7 @@ clang-format --style=LLVM -n src/main.cpp
 clang-format --style=file:path/to/.clang-format -n src/main.cpp
 
 # 递归检查目录下所有 C++ 文件
-find src/ -name "*.cpp" -o -name "*.h" | xargs clang-format -n
+find src/ -type f \( -name "*.cpp" -o -name "*.h" \) -print0 | xargs -0 clang-format -n
 
 # 输出需要修改的位置(XML 格式)
 clang-format --output-replacements-xml src/main.cpp

@@ -1,5 +1,5 @@
 ---
-name: embedded-books
+name: embedded-book
 description: "嵌入式硬件模块驱动参考手册。当用户提到任何嵌入式传感器、执行器、舵机、电机驱动、显示模块、通信模块的引脚/电源/PWM/协议参数，或需要在ESP32/STM32/Arduino等平台编写对应驱动时，主动调用此技能查找相关资料。关键词包括但不限于：舵机、传感器、执行器、PWM、GPIO、电源需求、接线、驱动开发、硬件参数、datasheet。"
 ---
 

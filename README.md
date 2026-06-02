@@ -13,6 +13,7 @@ npx skills add itlantu/itlantu-skills --list
 --|--|--
 stm32-serial-flasher|使用串口烧录STM32 ELF或Bin文件, 需要`STM32_Programmer_CLI`|`npx skill add itlantu/itlantu-skills --path skills/stm32-serial-flash`
 usart-serial-communication|提供串口扫描、检测、数据收发与格式转换能力, 基于pyserial|`npx skill add itlantu/itlantu-skills --path skills/usart-serial-communication`
+git-commit-message|生成规范化的git commit消息, 遵循`<前缀> <中文描述>`格式|`npx skill add itlantu/itlantu-skills --path skills/git-commit-message`
 
 ---
 

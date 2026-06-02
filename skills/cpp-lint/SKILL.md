@@ -74,12 +74,12 @@ clang-format --style=file:<项目根目录>/skills/cpp-lint/references/google.cl
 - `.h` `.hpp` `.hh` `.hxx` `.h++`
 - `.c` `.m` `.mm` (可选)
 
-PowerShell 扫描命令：
+**Windows (PowerShell)**：
 ```powershell
 Get-ChildItem -Path . -Recurse -Include *.cpp,*.h,*.hpp,*.cc,*.cxx,*.hh,*.c | ForEach-Object { clang-format -n $_.FullName }
 ```
 
-Linux 扫描命令：
+**Linux (Bash)**：
 ```bash
 find . -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.hpp" -o -name "*.cc" -o -name "*.cxx" -o -name "*.hh" -o -name "*.c" \) \
   ! -path "./build/*" ! -path "./cmake-build-*/*" \

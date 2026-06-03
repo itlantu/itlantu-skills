@@ -2,7 +2,7 @@
 
 ---
 
-## 🚀1. Skills
+## 🚀 1. Skills
 
 > 使用npx命令可以查看当前可选的skill
 ```sh
@@ -15,11 +15,12 @@ stm32-serial-flasher|✅稳定|使用串口烧录STM32 ELF或Bin文件, 需要`S
 usart-serial-communication|✅稳定|提供串口扫描、检测、数据收发与格式转换能力, 基于pyserial|`npx skill add itlantu/itlantu-skills --path skills/usart-serial-communication`
 git-commit-message|✅稳定|生成规范化的git commit消息, 遵循`<前缀> <中文描述>`格式|`npx skill add itlantu/itlantu-skills --path skills/git-commit-message`
 cpp-lint|✅稳定|使用clang-format进行C/C++代码规范检查|`npx skill add itlantu/itlantu-skills --path skills/cpp-lint`
+embedded-book|✅稳定|嵌入式硬件模块驱动参考手册，涵盖传感器、执行器、舵机、电机驱动、显示/通信模块的引脚/电源/PWM/协议参数|`npx skill add itlantu/itlantu-skills --path skills/embedded-book`
 image-understanding|⚠️开发中|调用多模态大模型获得图像理解能力|`npx skill add itlantu/itlantu-skills --path skills/image-understanding`
 
 ---
 
-## ⭐2. Quick Start
+## ⭐ 2. Quick Start
 
 ### 2.1 确保skill最新
 
@@ -37,7 +38,7 @@ npx skills add itlantu/lantu-skills --all -y
 
 ---
 
-## ⚙️Configuration
+## ⚙️ 3. Configuration
 
 ### 3.1（可选）image-understanding配置
 * 推荐使用`GLM-V`系列模型作为图像理解模型，如`GLM-4.6V-Flash`

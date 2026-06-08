@@ -1,0 +1,87 @@
+BasedOnStyle: Google
+Language: Cpp
+Standard: c++20
+
+# 缩进
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+IndentCaseLabels: true
+IndentPPDirectives: None
+
+# 列宽
+ColumnLimit: 120
+
+# 大括号
+BreakBeforeBraces: Attach
+BraceWrapping:
+  AfterClass: false
+  AfterControlStatement: Never
+  AfterEnum: false
+  AfterFunction: false
+  AfterNamespace: false
+  AfterStruct: false
+  AfterUnion: false
+  BeforeCatch: false
+  BeforeElse: false
+  IndentBraces: false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+
+# 空格
+SpaceAfterTemplateKeyword: true
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeParens: ControlStatements
+SpaceInEmptyParentheses: false
+SpacesBeforeTrailingComments: 2
+SpacesInAngles: Never
+SpacesInCStyleCastParentheses: false
+SpacesInContainerLiterals: false
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+
+# 指针和引用
+DerivePointerAlignment: false
+PointerAlignment: Left
+
+# 函数声明
+AlwaysBreakAfterReturnType: None
+AlwaysBreakTemplateDeclarations: Yes
+AllowShortFunctionsOnASingleLine: Inline
+
+# 包含文件排序
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^<.*\.h>'
+    Priority: 1
+  - Regex: '^<.*>'
+    Priority: 2
+  - Regex: '.*'
+    Priority: 3
+SortIncludes: CaseSensitive
+
+# 宏
+AlignConsecutiveMacros: AcrossEmptyLines
+
+# ====================== Doxygen 注释适配（新增）======================
+CommentPragmas: '^\s*[/\*!]|^\s*@|^\s*\\'     # Doxygen /** */ /*! */ /// //! @param \brief
+ReflowComments: Never                         # 禁用自动折行，防止Doxygen标签错乱
+AlignTrailingComments: true                   # 对齐行尾注释（Doxygen 友好）
+# ====================================================================
+
+# 其他
+AccessModifierOffset: -4
+AllowAllParametersOfDeclarationOnNextLine: true
+AllowShortBlocksOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakBeforeMultilineStrings: false
+BinPackArguments: true
+BinPackParameters: true
+ConstructorInitializerIndentWidth: 2
+ContinuationIndentWidth: 2
+Cpp11BracedListStyle: true
+MaxEmptyLinesToKeep: 1
+NamespaceIndentation: None
+SortUsingDeclarations: true

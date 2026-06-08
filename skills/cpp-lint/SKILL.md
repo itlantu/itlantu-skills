@@ -61,7 +61,7 @@ clang-format --style=file:<项目根目录>/skills/cpp-lint/references/google.cl
 1. 项目根目录的`.clang-format`
 2. 上级目录的 `.clang-format` (clang-format 会自动向上查找)
 3. 询问用户选择内置参考风格(Google / LLVM / GNU)
-4. 用户未指定时默认使用 Google 风格
+4. 用户未指定时默认使用`references/.clang-format`
 
 ### 3. 扫描源文件
 
@@ -183,9 +183,6 @@ clang-format --style=LLVM -n src/main.cpp
 
 # 使用指定的 .clang-format 文件
 clang-format --style=file:path/to/.clang-format -n src/main.cpp
-
-# 递归检查目录下所有 C++ 文件
-find src/ -type f \( -name "*.cpp" -o -name "*.h" \) -print0 | xargs -0 clang-format -n
 
 # 输出需要修改的位置(XML 格式)
 clang-format --output-replacements-xml src/main.cpp

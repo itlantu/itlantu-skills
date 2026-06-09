@@ -8,4 +8,5 @@
 
 # project agent
 .agents/
+.claude/
 skills-lock.json
